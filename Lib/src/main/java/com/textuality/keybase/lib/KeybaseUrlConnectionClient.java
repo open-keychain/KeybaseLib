@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Tim Bray <tbray@textuality.com>
+ * Copyright (C) 2015 Dominik Schürmann <dominik@dominikschuermann.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,22 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.textuality.keybase.lib.prover;
+package com.textuality.keybase.lib;
 
-public class Fetch {
+import java.io.IOException;
+import java.net.Proxy;
+import java.net.URL;
+import java.net.URLConnection;
 
-    public String mProblem = null;
-    public String mActualUrl = null;
-    public String mBody = null;
+/**
+ * wrapper
+ */
+public interface KeybaseUrlConnectionClient {
 
-    public String problem() {
-        return mProblem;
-    }
-    public String getActualUrl() {
-        return mActualUrl;
-    }
-    public String getBody() {
-        return mBody;
-    }
-
+    URLConnection openConnection(URL url) throws IOException;
+    URLConnection openConnection(URL url, Proxy proxy) throws IOException;
 }

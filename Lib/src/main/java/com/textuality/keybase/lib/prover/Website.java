@@ -20,12 +20,12 @@ package com.textuality.keybase.lib.prover;
 import com.textuality.keybase.lib.JWalk;
 import com.textuality.keybase.lib.KeybaseException;
 import com.textuality.keybase.lib.Proof;
+import com.textuality.keybase.lib.KeybaseQuery;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
-import java.net.Proxy;
 import java.net.URL;
 
 public class Website extends Prover {
@@ -35,16 +35,16 @@ public class Website extends Prover {
     }
 
     @Override
-    public boolean fetchProofData(Proxy proxy) {
+    public boolean fetchProofData(KeybaseQuery keybaseQuery) {
 
         try {
-            JSONObject sigJSON = readSig(mProof.getSigId(), proxy);
+            JSONObject sigJSON = readSig(keybaseQuery, mProof.getSigId());
 
             // find the .well-known URL
             String wellKnownUrl = JWalk.getString(sigJSON, "api_url");
 
-            // fetch the proof
-            Fetch fetch = new Fetch(wellKnownUrl);
+            // fetchProof the proof
+            Fetch fetch = keybaseQuery.fetchProof(wellKnownUrl);
             String problem = fetch.problem();
             if (problem != null) {
                 mLog.add(problem);

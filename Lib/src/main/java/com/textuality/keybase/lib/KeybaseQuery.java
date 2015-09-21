@@ -16,11 +16,8 @@
  */
 package com.textuality.keybase.lib;
 
-import android.util.Log;
+import com.textuality.keybase.lib.prover.Fetch;
 
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,19 +25,31 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.concurrent.TimeUnit;
 
-public class Search {
-    
+public class KeybaseQuery {
+
     private static final String TAG = "KEYBASE-LIB";
 
-    public static Iterable<Match> search(String query, Proxy proxy) throws KeybaseException {
-        JSONObject result = getFromKeybase("_/api/1.0/user/autocomplete.json?q=", query, proxy);
+    private KeybaseUrlConnectionClient connectionClient;
+    private Proxy proxy;
+
+    public KeybaseQuery(KeybaseUrlConnectionClient connectionClient) {
+        this.connectionClient = connectionClient;
+    }
+
+    public void setProxy(Proxy proxy) {
+        this.proxy = proxy;
+    }
+
+    public Iterable<Match> search(String query) throws KeybaseException {
+        JSONObject result = getFromKeybase("_/api/1.0/user/autocomplete.json?q=", query);
         try {
             return new MatchIterator(JWalk.getArray(result, "completions"));
         } catch (JSONException e) {
@@ -48,30 +57,19 @@ public class Search {
         }
     }
 
-    public static JSONObject getFromKeybase(String path, String query, Proxy proxy) throws KeybaseException {
+    public JSONObject getFromKeybase(String path, String query) throws KeybaseException {
         try {
             String url = "https://keybase.io/" + path + URLEncoder.encode(query, "utf8");
 
             URL realUrl = new URL(url);
 
-            OkHttpClient client = new OkHttpClient();
-            client.setProxy(proxy);
+            HttpURLConnection conn = (HttpURLConnection) connectionClient.openConnection(realUrl, proxy);
+            conn.connect();
 
-            if (proxy != null) {
-                client.setConnectTimeout(30000, TimeUnit.MILLISECONDS);
-                client.setReadTimeout(40000, TimeUnit.MILLISECONDS);
-            } else {
-                client.setConnectTimeout(5000, TimeUnit.MILLISECONDS); // TODO: Reasonable values for keybase
-                client.setReadTimeout(25000, TimeUnit.MILLISECONDS);
-            }
-
-            Response resp = client.newCall(new Request.Builder().url(realUrl).build()).execute();
-
-            int response = resp.code();
-
-            String text = resp.body().string();
+            int response = conn.getResponseCode();
 
             if (response >= 200 && response < 300) {
+                String text = snarf(conn.getInputStream());
                 try {
                     JSONObject json = new JSONObject(text);
                     if (JWalk.getInt(json, "status", "code") != 0) {
@@ -83,7 +81,8 @@ public class Search {
                     throw KeybaseException.keybaseScrewup(e);
                 }
             } else {
-                throw KeybaseException.networkScrewup("Keybase.io query error (status=" + response + "): " + text);
+                String message = snarf(conn.getErrorStream());
+                throw KeybaseException.networkScrewup("Keybase.io query error (status=" + response + "): " + message);
             }
         } catch (Exception e) {
             throw KeybaseException.networkScrewup(e);
@@ -95,9 +94,47 @@ public class Search {
         byte[] buf = new byte[1024];
         int count = 0;
         ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
-        while ((count = in.read(buf)) != -1) 
+        while ((count = in.read(buf)) != -1)
             out.write(buf, 0, count);
         return out.toString();
+    }
+
+    public static final int REDIRECT_TRIES = 5;
+
+    public Fetch fetchProof(String urlString) {
+        Fetch result = new Fetch();
+
+        try {
+            HttpURLConnection conn = null;
+            int status = 0;
+            int redirects = 0;
+            while (redirects < REDIRECT_TRIES) {
+                result.mActualUrl = urlString;
+                URL url = new URL(urlString);
+                conn = (HttpURLConnection) connectionClient.openConnection(url, proxy);
+                conn.addRequestProperty("User-Agent", "Keybase Java client, github.com/timbray/KeybaseLib");
+                conn.connect();
+                status = conn.getResponseCode();
+                if (status == 301) {
+                    redirects++;
+                    urlString = conn.getHeaderFields().get("Location").get(0);
+                } else {
+                    break;
+                }
+            }
+            if (status >= 200 && status < 300) {
+                result.mBody = KeybaseQuery.snarf(conn.getInputStream());
+            } else {
+                result.mProblem = "Fetch failed, status " + status + ": " + KeybaseQuery.snarf(conn.getErrorStream());
+            }
+
+        } catch (MalformedURLException e) {
+            result.mProblem = "Bad URL: " + urlString;
+        } catch (IOException e) {
+            result.mProblem = "Network error: " + e.getLocalizedMessage();
+        }
+
+        return result;
     }
 
     static class MatchIterator implements Iterable<Match>, Iterator<Match> {
@@ -107,13 +144,12 @@ public class Search {
         private Match mNextMatch;
 
         public MatchIterator(JSONArray matches) throws KeybaseException {
-            Log.d(TAG, "match count=" + matches.length());
             mMatches = matches;
             mLastIndex = -1;
             mNextMatch = null;
             hasNext();
         }
-        
+
         // caches mNextMatch but not the index
         private int findNext() {
             try {
@@ -148,7 +184,7 @@ public class Search {
 
         @Override
         public void remove() {
-            throw new RuntimeException("UserIterator.remove() not supported");            
+            throw new RuntimeException("UserIterator.remove() not supported");
         }
 
         @Override

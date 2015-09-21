@@ -19,11 +19,11 @@ package com.textuality.keybase.lib.prover;
 import com.textuality.keybase.lib.JWalk;
 import com.textuality.keybase.lib.KeybaseException;
 import com.textuality.keybase.lib.Proof;
+import com.textuality.keybase.lib.KeybaseQuery;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.Proxy;
 import java.util.List;
 
 public class DNS extends Prover {
@@ -31,10 +31,10 @@ public class DNS extends Prover {
     private String mDomain = null;
 
     @Override
-    public boolean fetchProofData(Proxy proxy) {
+    public boolean fetchProofData(KeybaseQuery keybaseQuery) {
 
         try {
-            JSONObject sigJSON = readSig(mProof.getSigId(), proxy);
+            JSONObject sigJSON = readSig(keybaseQuery, mProof.getSigId());
 
             // the magic string is the base64 of the SHA of the raw message
             mShortenedMessageHash = JWalk.getString(sigJSON, "sig_id_short");

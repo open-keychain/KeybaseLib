@@ -20,13 +20,13 @@ package com.textuality.keybase.lib.prover;
 import com.textuality.keybase.lib.JWalk;
 import com.textuality.keybase.lib.KeybaseException;
 import com.textuality.keybase.lib.Proof;
+import com.textuality.keybase.lib.KeybaseQuery;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
-import java.net.Proxy;
 import java.net.URL;
 
 public class Reddit extends Prover {
@@ -34,18 +34,18 @@ public class Reddit extends Prover {
     private String mApiUrl = null;
 
     @Override
-    public boolean fetchProofData(Proxy proxy) {
+    public boolean fetchProofData(KeybaseQuery keybaseQuery) {
 
         try {
-            JSONObject sigJSON = readSig(mProof.getSigId(), proxy);
+            JSONObject sigJSON = readSig(keybaseQuery, mProof.getSigId());
 
             // the magic string is the base64 of the SHA of the raw message
             mShortenedMessageHash = JWalk.getString(sigJSON, "sig_id_short");
             mApiUrl = JWalk.getString(sigJSON, "api_url");
             String nametag = mProof.getNametag();
 
-            // fetch the JSON proof
-            Fetch fetch = new Fetch(mApiUrl);
+            // fetchProof the JSON proof
+            Fetch fetch = keybaseQuery.fetchProof(mApiUrl);
             String problem = fetch.problem();
             if (problem != null) {
                 mLog.add(problem);

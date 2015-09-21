@@ -40,7 +40,7 @@ public class JWalk {
      * @param json The object
      * @param path list of string object member selectors
      * @return the int addressed by the path, assuming such a thing exists
-     * @throws JSONException if any step in the path doesn���t work
+     * @throws JSONException if any step in the path doesn't work
      */
     public static int getInt(JSONObject json, String... path) throws JSONException {
         json = walk(json, path);
@@ -53,7 +53,7 @@ public class JWalk {
      * @param json The object
      * @param path list of string object member selectors
      * @return the int addressed by the path, assuming such a thing exists
-     * @throws JSONException if any step in the path doesn���t work
+     * @throws JSONException if any step in the path doesn't work
      */
     public static long getLong(JSONObject json, String... path) throws JSONException {
         json = walk(json, path);
@@ -66,7 +66,7 @@ public class JWalk {
      * @param json The object
      * @param path list of string object member selectors
      * @return the int addressed by the path, assuming such a thing exists
-     * @throws JSONException if any step in the path doesn���t work
+     * @throws JSONException if any step in the path doesn't work
      */
     public static String getString(JSONObject json, String... path) throws JSONException {
         json = walk(json, path);
@@ -79,7 +79,7 @@ public class JWalk {
      * @param json The object
      * @param path list of string object member selectors
      * @return the int addressed by the path, assuming such a thing exists
-     * @throws JSONException if any step in the path doesn���t work
+     * @throws JSONException if any step in the path doesn't work
      */
     public static JSONArray getArray(JSONObject json, String... path) throws JSONException {
         json = walk(json, path);
@@ -92,7 +92,7 @@ public class JWalk {
      * @param json The object
      * @param path list of string object member selectors
      * @return the int addressed by the path, assuming such a thing exists
-     * @throws JSONException if any step in the path, except for the last, doesn���t work
+     * @throws JSONException if any step in the path, except for the last, doesn't work
      */
     public static JSONObject optObject(JSONObject json, String... path) throws JSONException {
         json = walk(json, path);
@@ -105,7 +105,7 @@ public class JWalk {
      * @param json The object
      * @param path list of string object member selectors
      * @return the int addressed by the path, assuming such a thing exists
-     * @throws JSONException if any step in the path doesn���t work
+     * @throws JSONException if any step in the path doesn't work
      */
     public static JSONObject getObject(JSONObject json, String... path) throws JSONException {
         json = walk(json, path);
@@ -121,7 +121,7 @@ public class JWalk {
                 pathIndex++;
             }
         } catch (JSONException e) {
-            // try to give ���em a nice-looking error
+            // try to give them a nice-looking error
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < len; i++) {
                 sb.append(path[i]).append('.');

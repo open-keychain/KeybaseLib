@@ -19,26 +19,26 @@ package com.textuality.keybase.lib.prover;
 
 import com.textuality.keybase.lib.KeybaseException;
 import com.textuality.keybase.lib.Proof;
+import com.textuality.keybase.lib.KeybaseQuery;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
-import java.net.Proxy;
 import java.net.URL;
 
 public class Coinbase extends Prover {
 
     @Override
-    public boolean fetchProofData(Proxy proxy) {
+    public boolean fetchProofData(KeybaseQuery keybaseQuery) {
 
         try {
-            JSONObject sigJSON = readSig(mProof.getSigId(), proxy);
+            JSONObject sigJSON = readSig(keybaseQuery, mProof.getSigId());
 
             String proofUrl = mProof.getProofUrl();
 
-            // fetch the post
-            Fetch fetch = new Fetch(proofUrl);
+            // fetchProof the post
+            Fetch fetch = keybaseQuery.fetchProof(proofUrl);
             String problem = fetch.problem();
             if (problem != null) {
                 mLog.add(problem);

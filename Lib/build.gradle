@@ -1,18 +1,14 @@
 apply plugin: 'com.android.library'
 
-dependencies {
-    compile 'com.squareup.okhttp:okhttp:2.4.0'
-}
-
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 19
+        targetSdkVersion 22
     }
-    
+
     lintOptions {
         abortOnError false
     }

@@ -19,12 +19,12 @@ package com.textuality.keybase.lib.prover;
 import com.textuality.keybase.lib.JWalk;
 import com.textuality.keybase.lib.KeybaseException;
 import com.textuality.keybase.lib.Proof;
+import com.textuality.keybase.lib.KeybaseQuery;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
-import java.net.Proxy;
 import java.net.URL;
 
 public class Twitter extends Prover {
@@ -34,18 +34,18 @@ public class Twitter extends Prover {
     }
 
     @Override
-    public boolean fetchProofData(Proxy proxy) {
+    public boolean fetchProofData(KeybaseQuery keybaseQuery) {
 
         String tweetUrl = null;
         try {
-            JSONObject sigJSON = readSig(mProof.getSigId(), proxy);
+            JSONObject sigJSON = readSig(keybaseQuery, mProof.getSigId());
 
             // the magic string is the base64 of the SHA of the raw message
             mShortenedMessageHash = JWalk.getString(sigJSON, "sig_id_short");
 
-            // find the tweet's url and fetch it
+            // find the tweet's url and fetchProof it
             tweetUrl = mProof.getProofUrl();
-            Fetch fetch = new Fetch(tweetUrl);
+            Fetch fetch = keybaseQuery.fetchProof(tweetUrl);
             String problem = fetch.problem();
             if (problem != null) {
                 mLog.add(problem);

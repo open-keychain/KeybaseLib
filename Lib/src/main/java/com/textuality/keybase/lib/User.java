@@ -20,15 +20,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.Proxy;
 import java.util.Iterator;
 
 public class User {
 
     private final JSONObject mJson;
 
-    public static User findByUsername(String username, Proxy proxy) throws KeybaseException {
-        JSONObject json = Search.getFromKeybase("_/api/1.0/user/lookup.json?username=", username, proxy);
+    public static User findByUsername(KeybaseQuery keybaseQuery, String username) throws KeybaseException {
+        JSONObject json = keybaseQuery.getFromKeybase("_/api/1.0/user/lookup.json?username=", username);
         try {
             json = JWalk.getObject(json, "them");
         } catch (JSONException e) {
@@ -36,11 +35,11 @@ public class User {
         }
         return new User(json);
     }
-    public static String keyForUsername(String username, Proxy proxy) throws KeybaseException {
-        return findByUsername(username, proxy).getKey();
+    public static String keyForUsername(KeybaseQuery keybaseQuery, String username) throws KeybaseException {
+        return findByUsername(keybaseQuery, username).getKey();
     }
-    public static User findByFingerprint(String fingerprint, Proxy proxy) throws KeybaseException {
-        JSONObject json = Search.getFromKeybase("_/api/1.0/user/lookup.json?key_fingerprint=", fingerprint, proxy);
+    public static User findByFingerprint(KeybaseQuery keybaseQuery, String fingerprint) throws KeybaseException {
+        JSONObject json = keybaseQuery.getFromKeybase("_/api/1.0/user/lookup.json?key_fingerprint=", fingerprint);
         try {
             JSONArray them = JWalk.getArray(json, "them");
             if (them.length() != 1) {

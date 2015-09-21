@@ -22,7 +22,7 @@ import android.util.Base64;
 import com.textuality.keybase.lib.JWalk;
 import com.textuality.keybase.lib.KeybaseException;
 import com.textuality.keybase.lib.Proof;
-import com.textuality.keybase.lib.Search;
+import com.textuality.keybase.lib.KeybaseQuery;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,7 +30,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.Proxy;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -55,7 +54,7 @@ import java.util.List;
  *    verification failed; an explanation can be found in the log.
  * 2. call checkFingerprint(), passing it the fingerprint of the key you’re checking up on; if
  *    if it returns false the verification failed.
- * 3. fetch the PGP message with getPgpMessage(), check that it’s signed with the right fingerprint
+ * 3. fetchProof the PGP message with getPgpMessage(), check that it’s signed with the right fingerprint
  *    (see above).
  * 4. Call dnsTxtCheckRequired() and if it returns non-null, the return value is a domain name;
  *    retrieve TXT records from that domain and pass them to checkDnsTxt(); if it returns false
@@ -92,7 +91,7 @@ public abstract class Prover {
         mProof = proof;
     }
 
-    abstract public boolean fetchProofData(Proxy proxy);
+    abstract public boolean fetchProofData(KeybaseQuery keybaseQuery);
 
     public String getPgpMessage() {
         return mPgpMessage;
@@ -110,10 +109,10 @@ public abstract class Prover {
         return mLog;
     }
 
-    JSONObject readSig(String sigId, Proxy proxy) throws JSONException, KeybaseException {
+    JSONObject readSig(KeybaseQuery keybaseQuery, String sigId) throws JSONException, KeybaseException {
 
-        // fetch the sig
-        JSONObject sigJSON = Search.getFromKeybase("_/api/1.0/sig/get.json?sig_id=", sigId, proxy);
+        // fetchProof the sig
+        JSONObject sigJSON = keybaseQuery.getFromKeybase("_/api/1.0/sig/get.json?sig_id=", sigId);
         mLog.add("Successfully retrieved sig from Keybase");
 
         sigJSON = JWalk.getArray(sigJSON, "sigs").getJSONObject(0);
