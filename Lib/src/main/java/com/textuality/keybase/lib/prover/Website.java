@@ -43,7 +43,7 @@ public class Website extends Prover {
             // find the .well-known URL
             String wellKnownUrl = JWalk.getString(sigJSON, "api_url");
 
-            // fetchProof the proof
+            // fetch the proof
             Fetch fetch = keybaseQuery.fetchProof(wellKnownUrl);
             String problem = fetch.problem();
             if (problem != null) {

@@ -44,7 +44,7 @@ public class Reddit extends Prover {
             mApiUrl = JWalk.getString(sigJSON, "api_url");
             String nametag = mProof.getNametag();
 
-            // fetchProof the JSON proof
+            // fetch the JSON proof
             Fetch fetch = keybaseQuery.fetchProof(mApiUrl);
             String problem = fetch.problem();
             if (problem != null) {

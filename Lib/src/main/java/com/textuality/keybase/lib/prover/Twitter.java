@@ -43,7 +43,7 @@ public class Twitter extends Prover {
             // the magic string is the base64 of the SHA of the raw message
             mShortenedMessageHash = JWalk.getString(sigJSON, "sig_id_short");
 
-            // find the tweet's url and fetchProof it
+            // find the tweet's url and fetch it
             tweetUrl = mProof.getProofUrl();
             Fetch fetch = keybaseQuery.fetchProof(tweetUrl);
             String problem = fetch.problem();

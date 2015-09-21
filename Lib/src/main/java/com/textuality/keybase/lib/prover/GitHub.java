@@ -41,7 +41,7 @@ public class GitHub extends Prover {
             String markdownURL = JWalk.getString(sigJSON, "api_url");
             String nametag = mProof.getNametag();
 
-            // fetchProof the gist
+            // fetch the gist
             Fetch fetch = keybaseQuery.fetchProof(markdownURL);
             String problem = fetch.problem();
             if (problem != null) {

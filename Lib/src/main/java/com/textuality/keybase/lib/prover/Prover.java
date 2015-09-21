@@ -54,7 +54,7 @@ import java.util.List;
  *    verification failed; an explanation can be found in the log.
  * 2. call checkFingerprint(), passing it the fingerprint of the key you’re checking up on; if
  *    if it returns false the verification failed.
- * 3. fetchProof the PGP message with getPgpMessage(), check that it’s signed with the right fingerprint
+ * 3. fetch the PGP message with getPgpMessage(), check that it’s signed with the right fingerprint
  *    (see above).
  * 4. Call dnsTxtCheckRequired() and if it returns non-null, the return value is a domain name;
  *    retrieve TXT records from that domain and pass them to checkDnsTxt(); if it returns false
@@ -111,7 +111,7 @@ public abstract class Prover {
 
     JSONObject readSig(KeybaseQuery keybaseQuery, String sigId) throws JSONException, KeybaseException {
 
-        // fetchProof the sig
+        // fetch the sig
         JSONObject sigJSON = keybaseQuery.getFromKeybase("_/api/1.0/sig/get.json?sig_id=", sigId);
         mLog.add("Successfully retrieved sig from Keybase");
 

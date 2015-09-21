@@ -37,7 +37,7 @@ public class Coinbase extends Prover {
 
             String proofUrl = mProof.getProofUrl();
 
-            // fetchProof the post
+            // fetch the post
             Fetch fetch = keybaseQuery.fetchProof(proofUrl);
             String problem = fetch.problem();
             if (problem != null) {
