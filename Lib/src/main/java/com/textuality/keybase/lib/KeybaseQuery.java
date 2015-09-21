@@ -59,7 +59,7 @@ public class KeybaseQuery {
 
     public JSONObject getFromKeybase(String path, String query) throws KeybaseException {
         try {
-            String url = "https://keybase.io/" + path + URLEncoder.encode(query, "utf8");
+            String url = "https://api.keybase.io/" + path + URLEncoder.encode(query, "utf8");
 
             URL realUrl = new URL(url);
 
@@ -73,7 +73,7 @@ public class KeybaseQuery {
                 try {
                     JSONObject json = new JSONObject(text);
                     if (JWalk.getInt(json, "status", "code") != 0) {
-                        throw KeybaseException.queryScrewup("Keybase.io query failed: " + path + "?" + query +
+                        throw KeybaseException.queryScrewup("api.keybase.io query failed: " + path + "?" + query +
                                 " using proxy: " + proxy);
                     }
                     return json;
@@ -82,7 +82,7 @@ public class KeybaseQuery {
                 }
             } else {
                 String message = snarf(conn.getErrorStream());
-                throw KeybaseException.networkScrewup("Keybase.io query error (status=" + response + "): " + message);
+                throw KeybaseException.networkScrewup("api.keybase.io query error (status=" + response + "): " + message);
             }
         } catch (Exception e) {
             throw KeybaseException.networkScrewup(e);
