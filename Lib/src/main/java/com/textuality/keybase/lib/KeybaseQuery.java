@@ -35,7 +35,7 @@ import java.util.NoSuchElementException;
 
 public class KeybaseQuery {
 
-    private static final String TAG = "KEYBASE-LIB";
+    public static final int REDIRECT_TRIES = 5;
 
     private KeybaseUrlConnectionClient connectionClient;
     private Proxy proxy;
@@ -98,8 +98,6 @@ public class KeybaseQuery {
             out.write(buf, 0, count);
         return out.toString();
     }
-
-    public static final int REDIRECT_TRIES = 5;
 
     public Fetch fetchProof(String urlString) {
         Fetch result = new Fetch();
