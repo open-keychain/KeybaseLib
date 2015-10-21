@@ -25,12 +25,7 @@ import java.net.URL;
 public class DefaultKeybaseUrlConnectionClient implements KeybaseUrlConnectionClient {
 
     @Override
-    public HttpURLConnection openConnection(URL url) throws IOException {
-        return openConnection(url, null);
-    }
-
-    @Override
-    public HttpURLConnection openConnection(URL url, Proxy proxy) throws IOException {
+    public HttpURLConnection openConnection(URL url, Proxy proxy, boolean isKeybase) throws IOException {
         HttpURLConnection conn;
         if (proxy == null) {
             conn = (HttpURLConnection) url.openConnection();
@@ -42,5 +37,10 @@ public class DefaultKeybaseUrlConnectionClient implements KeybaseUrlConnectionCl
             conn.setReadTimeout(40000);
         }
         return conn;
+    }
+
+    @Override
+    public String getKeybaseBaseUrl() {
+        return "https://keybase.io/";
     }
 }

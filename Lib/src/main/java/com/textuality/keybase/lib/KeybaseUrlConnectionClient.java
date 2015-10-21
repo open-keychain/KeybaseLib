@@ -27,6 +27,6 @@ import java.net.URLConnection;
  */
 public interface KeybaseUrlConnectionClient {
 
-    URLConnection openConnection(URL url) throws IOException;
-    URLConnection openConnection(URL url, Proxy proxy) throws IOException;
+    URLConnection openConnection(URL url, Proxy proxy, boolean isKeybase) throws IOException;
+    String getKeybaseBaseUrl();
 }

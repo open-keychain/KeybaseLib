@@ -59,11 +59,11 @@ public class KeybaseQuery {
 
     public JSONObject getFromKeybase(String path, String query) throws KeybaseException {
         try {
-            String url = "https://api.keybase.io/" + path + URLEncoder.encode(query, "utf8");
+            String url = connectionClient.getKeybaseBaseUrl() + path + URLEncoder.encode(query, "utf8");
 
             URL realUrl = new URL(url);
 
-            HttpURLConnection conn = (HttpURLConnection) connectionClient.openConnection(realUrl, proxy);
+            HttpURLConnection conn = (HttpURLConnection) connectionClient.openConnection(realUrl, proxy, true);
             conn.connect();
 
             int response = conn.getResponseCode();
@@ -109,7 +109,7 @@ public class KeybaseQuery {
             while (redirects < REDIRECT_TRIES) {
                 result.mActualUrl = urlString;
                 URL url = new URL(urlString);
-                conn = (HttpURLConnection) connectionClient.openConnection(url, proxy);
+                conn = (HttpURLConnection) connectionClient.openConnection(url, proxy, false);
                 conn.addRequestProperty("User-Agent", "Keybase Java client, github.com/timbray/KeybaseLib");
                 conn.connect();
                 status = conn.getResponseCode();
