@@ -13,3 +13,7 @@ android {
         abortOnError false
     }
 }
+
+dependencies {
+    compile 'com.squareup.okhttp3:okhttp:3.2.0'
+}
