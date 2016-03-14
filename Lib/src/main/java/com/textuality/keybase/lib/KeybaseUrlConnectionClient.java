@@ -20,13 +20,13 @@ package com.textuality.keybase.lib;
 import java.io.IOException;
 import java.net.Proxy;
 import java.net.URL;
-import java.net.URLConnection;
+import okhttp3.OkHttpClient;
 
 /**
  * wrapper
  */
 public interface KeybaseUrlConnectionClient {
 
-    URLConnection openConnection(URL url, Proxy proxy, boolean isKeybase) throws IOException;
+    OkHttpClient getClient(URL url, Proxy proxy, boolean pin) throws IOException;
     String getKeybaseBaseUrl();
 }

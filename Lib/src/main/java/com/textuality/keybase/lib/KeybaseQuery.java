@@ -63,13 +63,17 @@ public class KeybaseQuery {
 
             URL realUrl = new URL(url);
 
-            HttpURLConnection conn = (HttpURLConnection) connectionClient.openConnection(realUrl, proxy, true);
-            conn.connect();
+            OkHttpClient client = connectionClient.getClient(realUrl,proxy,true);
+            Request request = new Request.Builder()
+                    .url(realUrl)
+                    .build();
 
-            int response = conn.getResponseCode();
+            Response response = client.newCall(request).execute();
 
-            if (response >= 200 && response < 300) {
-                String text = snarf(conn.getInputStream());
+            int status = response.code();
+
+            if (status >= 200 && status < 300) {
+                String text = response.body().string();
                 try {
                     JSONObject json = new JSONObject(text);
                     if (JWalk.getInt(json, "status", "code") != 0) {
@@ -81,7 +85,7 @@ public class KeybaseQuery {
                     throw KeybaseException.keybaseScrewup(e);
                 }
             } else {
-                String message = snarf(conn.getErrorStream());
+                String message = response.message();
                 throw KeybaseException.networkScrewup("api.keybase.io query error (status=" + response + "): " + message);
             }
         } catch (Exception e) {
@@ -103,27 +107,32 @@ public class KeybaseQuery {
         Fetch result = new Fetch();
 
         try {
-            HttpURLConnection conn = null;
+            Response response= null;
             int status = 0;
             int redirects = 0;
             while (redirects < REDIRECT_TRIES) {
                 result.mActualUrl = urlString;
                 URL url = new URL(urlString);
-                conn = (HttpURLConnection) connectionClient.openConnection(url, proxy, false);
-                conn.addRequestProperty("User-Agent", "Keybase Java client, github.com/timbray/KeybaseLib");
-                conn.connect();
-                status = conn.getResponseCode();
+                OkHttpClient client = connectionClient.getClient(url, proxy, false);
+                Request request = new Request.Builder()
+                        .url(url)
+                        .addHeader("User-Agent", "Keybase Java client, github.com/timbray/KeybaseLib")
+                        .build();
+
+                response = client.newCall(request).execute();
+
+                status = response.code();
                 if (status == 301) {
                     redirects++;
-                    urlString = conn.getHeaderFields().get("Location").get(0);
+                    urlString = response.header("Location");
                 } else {
                     break;
                 }
             }
             if (status >= 200 && status < 300) {
-                result.mBody = KeybaseQuery.snarf(conn.getInputStream());
+                result.mBody = response.body().string();
             } else {
-                result.mProblem = "Fetch failed, status " + status + ": " + KeybaseQuery.snarf(conn.getErrorStream());
+                rresult.mProblem = "Fetch failed, status " + status + ": " + response.message();
             }
 
         } catch (MalformedURLException e) {
