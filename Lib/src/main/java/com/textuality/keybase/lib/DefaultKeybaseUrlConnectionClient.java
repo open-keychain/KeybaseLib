@@ -25,7 +25,7 @@ import java.net.URL;
 public class DefaultKeybaseUrlConnectionClient implements KeybaseUrlConnectionClient {
 
     @Override
-    public HttpURLConnection openConnection(URL url, Proxy proxy, boolean isKeybase) throws IOException {
+    public Response getUrlResponse(URL url, Proxy proxy, boolean isKeybase) throws IOException {
         HttpURLConnection conn;
         if (proxy == null) {
             conn = (HttpURLConnection) url.openConnection();
@@ -36,7 +36,10 @@ public class DefaultKeybaseUrlConnectionClient implements KeybaseUrlConnectionCl
             conn.setConnectTimeout(30000);
             conn.setReadTimeout(40000);
         }
-        return conn;
+        conn.connect();
+
+
+        return new Response(conn.getInputStream(),conn.getResponseCode(),conn.getResponseMessage(),conn.getHeaderFields());
     }
 
     @Override
