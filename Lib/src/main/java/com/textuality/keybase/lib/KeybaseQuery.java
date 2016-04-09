@@ -25,7 +25,6 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
@@ -62,14 +61,9 @@ public class KeybaseQuery {
             String url = connectionClient.getKeybaseBaseUrl() + path + URLEncoder.encode(query, "utf8");
 
             URL realUrl = new URL(url);
-
-            HttpURLConnection conn = (HttpURLConnection) connectionClient.openConnection(realUrl, proxy, true);
-            conn.connect();
-
-            int response = conn.getResponseCode();
-
-            if (response >= 200 && response < 300) {
-                String text = snarf(conn.getInputStream());
+            KeybaseUrlConnectionClient.Response response = connectionClient.getUrlResponse(realUrl, proxy, true);
+            if (response.getCode() >= 200 && response.getCode() < 300) {
+                String text = snarf(response.getStream());
                 try {
                     JSONObject json = new JSONObject(text);
                     if (JWalk.getInt(json, "status", "code") != 0) {
@@ -81,7 +75,7 @@ public class KeybaseQuery {
                     throw KeybaseException.keybaseScrewup(e);
                 }
             } else {
-                String message = snarf(conn.getErrorStream());
+                String message = response.getMessage();
                 throw KeybaseException.networkScrewup("api.keybase.io query error (status=" + response + "): " + message);
             }
         } catch (Exception e) {
@@ -103,27 +97,23 @@ public class KeybaseQuery {
         Fetch result = new Fetch();
 
         try {
-            HttpURLConnection conn = null;
-            int status = 0;
+            KeybaseUrlConnectionClient.Response response  = null;
             int redirects = 0;
             while (redirects < REDIRECT_TRIES) {
                 result.mActualUrl = urlString;
                 URL url = new URL(urlString);
-                conn = (HttpURLConnection) connectionClient.openConnection(url, proxy, false);
-                conn.addRequestProperty("User-Agent", "Keybase Java client, github.com/timbray/KeybaseLib");
-                conn.connect();
-                status = conn.getResponseCode();
-                if (status == 301) {
+                response = connectionClient.getUrlResponse(url, proxy, false);
+                if (response.getCode() == 301) {
                     redirects++;
-                    urlString = conn.getHeaderFields().get("Location").get(0);
+                    urlString = response.getHeaders().get("Location").get(0);
                 } else {
                     break;
                 }
             }
-            if (status >= 200 && status < 300) {
-                result.mBody = KeybaseQuery.snarf(conn.getInputStream());
+            if (response.getCode() >= 200 && response.getCode() < 300) {
+                result.mBody = KeybaseQuery.snarf(response.getStream());
             } else {
-                result.mProblem = "Fetch failed, status " + status + ": " + KeybaseQuery.snarf(conn.getErrorStream());
+                result.mProblem = "Fetch failed, status " + response.getCode() + ": " + response.getMessage();
             }
 
         } catch (MalformedURLException e) {

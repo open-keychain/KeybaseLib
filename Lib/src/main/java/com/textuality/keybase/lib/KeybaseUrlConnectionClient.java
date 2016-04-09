@@ -18,15 +18,51 @@
 package com.textuality.keybase.lib;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * wrapper
  */
 public interface KeybaseUrlConnectionClient {
 
-    URLConnection openConnection(URL url, Proxy proxy, boolean isKeybase) throws IOException;
+    Response getUrlResponse(URL url, Proxy proxy, boolean isKeybase) throws IOException;
     String getKeybaseBaseUrl();
+
+    class Response {
+        private final InputStream stream;
+        private final int code;
+        private final String message;
+        private final Map<String, List<String>> headers;
+
+        public Response(InputStream stream, int code, String  message, Map<String, List<String>> headers) {
+            if (stream == null) {
+                throw new IllegalArgumentException("Stream may not be null.");
+            }
+            this.stream = stream;
+            this.code = code;
+            this.message = message;
+            this.headers = headers;
+        }
+
+        public InputStream getStream() {
+            return stream;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public Map<String, List<String>> getHeaders() {
+            return headers;
+        }
+    }
 }
