@@ -63,7 +63,7 @@ public class Proof {
                 handle = "github.com/" + mNametag;
                 break;
             case PROOF_TYPE_COINBASE:
-                handle = mNametag.substring("coinbase/".length());
+                handle = "coinbase.com/" + mNametag;
                 break;
         }
         return handle;
